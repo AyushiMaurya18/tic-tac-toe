@@ -46,6 +46,66 @@
 </div>
 <div id="message">Turn: X</div>
 <button id="restart">Restart</button>
+<script>
+const board = Array(9).fill("");
+let currentPlayer = "X";
+const cells = document.querySelectorAll(".cell");
+const message = document.getElementById("message");
+const restartBtn = document.getElementById("restart");
+
+// Optional: show logged-in username
+const username = localStorage.getItem("loggedInUser");
+if (username) {
+    const heading = document.querySelector("h1");
+    heading.textContent = `Tic-Tac-Toe - ${username}`;
+}
+
+const winPatterns = [
+  [0,1,2],[3,4,5],[6,7,8], // rows
+  [0,3,6],[1,4,7],[2,5,8], // columns
+  [0,4,8],[2,4,6]           // diagonals
+];
+
+function checkWin() {
+  for (let pattern of winPatterns) {
+    const [a,b,c] = pattern;
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      cells[a].style.backgroundColor = "#90ee90";
+      cells[b].style.backgroundColor = "#90ee90";
+      cells[c].style.backgroundColor = "#90ee90";
+      return board[a];
+    }
+  }
+  return board.includes("") ? null : "Tie";
+}
+
+function handleClick(e) {
+  const index = e.target.dataset.index;
+  if (!board[index] && !checkWin()) {
+    board[index] = currentPlayer;
+    e.target.textContent = currentPlayer;
+    const result = checkWin();
+    if (result) {
+      message.textContent = result === "Tie" ? "It's a tie!" : `${result} wins!`;
+    } else {
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      message.textContent = `Turn: ${currentPlayer}`;
+    }
+  }
+}
+
+cells.forEach(cell => cell.addEventListener("click", handleClick));
+
+restartBtn.addEventListener("click", () => {
+  board.fill("");
+  cells.forEach(cell => {
+    cell.textContent = "";
+    cell.style.backgroundColor = "#fff";
+  });
+  currentPlayer = "X";
+  message.textContent = `Turn: ${currentPlayer}`;
+});
+</script>
 
 </body>
 </html>
