@@ -74,13 +74,15 @@ submitBtn.addEventListener("click", () => {
   if (isLogin) {
     const storedUser = JSON.parse(localStorage.getItem(username));
     if (storedUser && storedUser.password === password) {
-      alert(`Login successful! Welcome, ${storedUser.name || username}`);
-      // Redirect to game or another page
-      // window.location.href = "tic-tac-toe.html";
+        // Store the logged-in username (optional, for display on dashboard)
+        localStorage.setItem("loggedInUser", username);
+
+        // Redirect to dashboard page
+        window.location.href = "dashboard.html";
     } else {
-      alert("Incorrect username or password.");
+        alert("Incorrect username or password.");
     }
-  } else {
+}else {
     if (localStorage.getItem(username)) {
       alert("Username already exists. Please choose a different one.");
     } else {
