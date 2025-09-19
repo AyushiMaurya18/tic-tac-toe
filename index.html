@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login/Signup</title>
+<title>Login / Signup</title>
 <style>
   body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4; }
-  .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
-  input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; }
+  .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 350px; }
+  input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 4px; border: 1px solid #ccc; }
   button { width: 100%; padding: 10px; background: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
   button:hover { background: #0056b3; }
   .toggle { text-align: center; margin-top: 10px; cursor: pointer; color: #007BFF; }
@@ -17,41 +17,90 @@
 
 <div class="container">
   <h2 id="form-title">Login</h2>
-  <input type="text" id="username" placeholder="Username" required>
-  <input type="password" id="password" placeholder="Password" required>
+  <div id="signup-fields" style="display:none;">
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="email" id="email" placeholder="Email">
+  </div>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
   <button id="submit-btn">Login</button>
   <p class="toggle" id="toggle-form">Don't have an account? Sign up</p>
 </div>
 
 <script>
-  const formTitle = document.getElementById("form-title");
-  const submitBtn = document.getElementById("submit-btn");
-  const toggleForm = document.getElementById("toggle-form");
+const formTitle = document.getElementById("form-title");
+const submitBtn = document.getElementById("submit-btn");
+const toggleForm = document.getElementById("toggle-form");
+const signupFields = document.getElementById("signup-fields");
 
-  let isLogin = true;
+let isLogin = true;
 
-  toggleForm.addEventListener("click", () => {
-    isLogin = !isLogin;
-    if (isLogin) {
+function validatePassword(password) {
+  const strongPassword = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[\W_]).{8,}$/;
+  return strongPassword.test(password);
+}
+
+toggleForm.addEventListener("click", () => {
+  isLogin = !isLogin;
+  if (isLogin) {
+    formTitle.textContent = "Login";
+    submitBtn.textContent = "Login";
+    toggleForm.textContent = "Don't have an account? Sign up";
+    signupFields.style.display = "none";
+  } else {
+    formTitle.textContent = "Sign Up";
+    submitBtn.textContent = "Sign Up";
+    toggleForm.textContent = "Already have an account? Login";
+    signupFields.style.display = "block";
+  }
+});
+
+submitBtn.addEventListener("click", () => {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  if (!username || !password || (!isLogin && (!name || !email))) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  if (!isLogin && !validatePassword(password)) {
+    alert("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+    return;
+  }
+
+  if (isLogin) {
+    const storedUser = JSON.parse(localStorage.getItem(username));
+    if (storedUser && storedUser.password === password) {
+      alert(`Login successful! Welcome, ${storedUser.name || username}`);
+      // Redirect to game or another page
+      // window.location.href = "tic-tac-toe.html";
+    } else {
+      alert("Incorrect username or password.");
+    }
+  } else {
+    if (localStorage.getItem(username)) {
+      alert("Username already exists. Please choose a different one.");
+    } else {
+      const userData = { name, email, username, password };
+      localStorage.setItem(username, JSON.stringify(userData));
+      alert("Account created successfully! You can now log in.");
+      isLogin = true;
       formTitle.textContent = "Login";
       submitBtn.textContent = "Login";
       toggleForm.textContent = "Don't have an account? Sign up";
-    } else {
-      formTitle.textContent = "Sign Up";
-      submitBtn.textContent = "Sign Up";
-      toggleForm.textContent = "Already have an account? Login";
+      signupFields.style.display = "none";
     }
-  });
+  }
 
-  submitBtn.addEventListener("click", () => {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    if (username && password) {
-      alert(isLogin ? Logging in as ${username} : Signing up as ${username});
-    } else {
-      alert("Please fill in all fields.");
-    }
-  });
+  // Clear fields after action
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+});
 </script>
 
 </body>
